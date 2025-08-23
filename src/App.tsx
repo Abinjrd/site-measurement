@@ -18,7 +18,8 @@ function App() {
       ceiling: {
         length: 0,
         width: 0,
-        includeCeiling: false
+        includeCeiling: false,
+        runningFeet: 0
       }
     };
     setRooms([...rooms, newRoom]);

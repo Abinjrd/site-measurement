@@ -20,6 +20,7 @@ export interface Room {
     length: number;
     width: number;
     includeCeiling: boolean;
+    runningFeet: number;
   };
 }
 

@@ -10,7 +10,7 @@ export const calculateRoomArea = (room: Room): CalculationSummary => {
   }, 0);
 
   const ceilingArea = room.ceiling?.includeCeiling 
-    ? (room.ceiling.length * room.ceiling.width) 
+    ? (room.ceiling.length * room.ceiling.width) + (room.ceiling.runningFeet || 0)
     : 0;
 
   const netArea = Math.max(0, totalWallArea - totalOpeningsArea + ceilingArea);

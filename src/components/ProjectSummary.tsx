@@ -83,7 +83,7 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({ rooms }) => {
                   {formatArea(summary.netArea)} sq ft
                 </div>
                 <div className="text-xs text-gray-500">
-                  {formatArea(summary.totalWallArea)} - {formatArea(summary.totalOpeningsArea)} + {formatArea(summary.ceilingArea)}
+                  Walls: {formatArea(summary.totalWallArea)} - Openings: {formatArea(summary.totalOpeningsArea)} + Ceiling: {formatArea(summary.ceilingArea)}
                 </div>
               </div>
             </div>
