@@ -33,8 +33,8 @@ export const exportToPDF = (rooms: Room[]) => {
     yPosition += 7;
     
     room.walls.forEach((wall, wallIndex) => {
-      const area = wall.height * wall.width;
-      pdf.text(`  Wall ${wallIndex + 1}: ${wall.height}' × ${wall.width}' = ${formatArea(area)} sq ft`, 30, yPosition);
+      const area = wall.height * wall.width * wall.quantity;
+      pdf.text(`  Wall ${wallIndex + 1}: ${wall.height}' × ${wall.width}' × ${wall.quantity} = ${formatArea(area)} sq ft`, 30, yPosition);
       yPosition += 6;
     });
     
@@ -45,8 +45,21 @@ export const exportToPDF = (rooms: Room[]) => {
       yPosition += 7;
       
       room.openings.forEach((opening, openingIndex) => {
-        const area = opening.height * opening.width;
-        pdf.text(`  ${opening.type.charAt(0).toUpperCase() + opening.type.slice(1)} ${openingIndex + 1}: ${opening.height}' × ${opening.width}' = ${formatArea(area)} sq ft`, 30, yPosition);
+        const area = opening.height * opening.width * opening.quantity;
+        pdf.text(`  ${opening.type.charAt(0).toUpperCase() + opening.type.slice(1)} ${openingIndex + 1}: ${opening.height}' × ${opening.width}' × ${opening.quantity} = ${formatArea(area)} sq ft`, 30, yPosition);
+        yPosition += 6;
+      });
+    }
+    
+    // Running feet section
+    if (room.runningFeet.length > 0) {
+      yPosition += 5;
+      pdf.text('Running Feet:', 25, yPosition);
+      yPosition += 7;
+      
+      room.runningFeet.forEach((rf, rfIndex) => {
+        const area = rf.length * rf.quantity;
+        pdf.text(`  Running Feet ${rfIndex + 1}: ${rf.length}' × ${rf.quantity} = ${formatArea(area)} sq ft`, 30, yPosition);
         yPosition += 6;
       });
     }
@@ -60,6 +73,10 @@ export const exportToPDF = (rooms: Room[]) => {
     yPosition += 6;
     if (summary.ceilingArea > 0) {
       pdf.text(`Ceiling Area: ${formatArea(summary.ceilingArea)} sq ft`, 25, yPosition);
+      yPosition += 6;
+    }
+    if (summary.runningFeetArea > 0) {
+      pdf.text(`Running Feet Area: ${formatArea(summary.runningFeetArea)} sq ft`, 25, yPosition);
       yPosition += 6;
     }
     pdf.text(`Net Area: ${formatArea(summary.netArea)} sq ft`, 25, yPosition);
@@ -82,7 +99,7 @@ export const exportToPDF = (rooms: Room[]) => {
 };
 
 export const exportToCSV = (rooms: Room[]) => {
-  const headers = ['Room Name', 'Wall Area (sq ft)', 'Openings Area (sq ft)', 'Ceiling Area (sq ft)', 'Net Area (sq ft)'];
+  const headers = ['Room Name', 'Wall Area (sq ft)', 'Openings Area (sq ft)', 'Ceiling Area (sq ft)', 'Running Feet Area (sq ft)', 'Net Area (sq ft)'];
   const rows = rooms.map(room => {
     const summary = calculateRoomArea(room);
     return [
@@ -90,12 +107,13 @@ export const exportToCSV = (rooms: Room[]) => {
       formatArea(summary.totalWallArea),
       formatArea(summary.totalOpeningsArea),
       formatArea(summary.ceilingArea),
+      formatArea(summary.runningFeetArea),
       formatArea(summary.netArea)
     ];
   });
   
   const projectTotal = calculateProjectTotal(rooms);
-  rows.push(['TOTAL PROJECT', '', '', '', formatArea(projectTotal)]);
+  rows.push(['TOTAL PROJECT', '', '', '', '', formatArea(projectTotal)]);
   
   const csvContent = [headers, ...rows]
     .map(row => row.join(','))

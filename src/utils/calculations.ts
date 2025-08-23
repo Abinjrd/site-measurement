@@ -2,23 +2,28 @@ import { Room, CalculationSummary } from '../types';
 
 export const calculateRoomArea = (room: Room): CalculationSummary => {
   const totalWallArea = room.walls.reduce((sum, wall) => {
-    return sum + (wall.height * wall.width);
+    return sum + (wall.height * wall.width * wall.quantity);
   }, 0);
 
   const totalOpeningsArea = room.openings.reduce((sum, opening) => {
-    return sum + (opening.height * opening.width);
+    return sum + (opening.height * opening.width * opening.quantity);
   }, 0);
 
   const ceilingArea = room.ceiling?.includeCeiling 
-    ? (room.ceiling.length * room.ceiling.width) + (room.ceiling.runningFeet || 0)
+    ? (room.ceiling.length * room.ceiling.width)
     : 0;
 
-  const netArea = Math.max(0, totalWallArea - totalOpeningsArea + ceilingArea);
+  const runningFeetArea = room.runningFeet?.reduce((sum, rf) => {
+    return sum + (rf.length * rf.quantity);
+  }, 0) || 0;
+
+  const netArea = Math.max(0, totalWallArea - totalOpeningsArea + ceilingArea + runningFeetArea);
 
   return {
     totalWallArea,
     totalOpeningsArea,
     ceilingArea,
+    runningFeetArea,
     netArea
   };
 };

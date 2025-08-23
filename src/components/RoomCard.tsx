@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trash2, Edit3, Check, X } from 'lucide-react';
 import { Room, Wall, Opening } from '../types';
+import { RunningFeet } from '../types';
 import { WallInput } from './WallInput';
 import { OpeningInput } from './OpeningInput';
+import { RunningFeetInput } from './RunningFeetInput';
 import { CeilingInput } from './CeilingInput';
 import { calculateRoomArea, formatArea } from '../utils/calculations';
 import { v4 as uuidv4 } from 'uuid';
@@ -56,6 +58,21 @@ export const RoomCard: React.FC<RoomCardProps> = ({
 
   const handleUpdateCeiling = (ceiling: { length: number; width: number; includeCeiling: boolean }) => {
     onUpdateRoom(room.id, { ceiling });
+  };
+
+  const handleAddRunningFeet = (runningFeetData: Omit<RunningFeet, 'id'>) => {
+    const newRunningFeet: RunningFeet = { ...runningFeetData, id: uuidv4() };
+    onUpdateRoom(room.id, { runningFeet: [...room.runningFeet, newRunningFeet] });
+  };
+
+  const handleRemoveRunningFeet = (runningFeetId: string) => {
+    onUpdateRoom(room.id, { runningFeet: room.runningFeet.filter(rf => rf.id !== runningFeetId) });
+  };
+
+  const handleUpdateRunningFeet = (runningFeetId: string, updates: Partial<RunningFeet>) => {
+    onUpdateRoom(room.id, {
+      runningFeet: room.runningFeet.map(rf => rf.id === runningFeetId ? { ...rf, ...updates } : rf)
+    });
   };
 
   const handleSaveName = () => {
@@ -153,11 +170,19 @@ export const RoomCard: React.FC<RoomCardProps> = ({
           onRemoveWall={handleRemoveWall}
           onUpdateWall={handleUpdateWall}
         />
+        
         <OpeningInput
           openings={room.openings}
           onAddOpening={handleAddOpening}
           onRemoveOpening={handleRemoveOpening}
           onUpdateOpening={handleUpdateOpening}
+        />
+        
+        <RunningFeetInput
+          runningFeet={room.runningFeet}
+          onAddRunningFeet={handleAddRunningFeet}
+          onRemoveRunningFeet={handleRemoveRunningFeet}
+          onUpdateRunningFeet={handleUpdateRunningFeet}
         />
       </div>
 
@@ -177,8 +202,14 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             <div className="font-bold text-purple-600">{formatArea(summary.ceilingArea)} sq ft</div>
           </div>
           <div>
-            <span className="text-gray-600">Net Area:</span>
-            <div className="font-bold text-green-600 text-lg">{formatArea(summary.netArea)} sq ft</div>
+            <span className="text-gray-600">Running Feet:</span>
+            <div className="font-bold text-green-600">{formatArea(summary.runningFeetArea)} sq ft</div>
+          </div>
+        </div>
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <div>
+            <span className="text-gray-600">Net Total Area:</span>
+            <div className="font-bold text-gray-800 text-lg">{formatArea(summary.netArea)} sq ft</div>
           </div>
         </div>
       </div>

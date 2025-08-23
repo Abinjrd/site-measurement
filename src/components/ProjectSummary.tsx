@@ -75,6 +75,7 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({ rooms }) => {
                 <div className="text-sm text-gray-600 flex gap-4 mt-1">
                   <span>Walls: {room.walls.length}</span>
                   <span>Openings: {room.openings.length}</span>
+                  <span>Running Feet: {room.runningFeet.length}</span>
                   {room.ceiling?.includeCeiling && <span>Ceiling: Yes</span>}
                 </div>
               </div>
@@ -83,7 +84,7 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({ rooms }) => {
                   {formatArea(summary.netArea)} sq ft
                 </div>
                 <div className="text-xs text-gray-500">
-                  Walls: {formatArea(summary.totalWallArea)} - Openings: {formatArea(summary.totalOpeningsArea)} + Ceiling: {formatArea(summary.ceilingArea)}
+                  Walls: {formatArea(summary.totalWallArea)} - Openings: {formatArea(summary.totalOpeningsArea)} + Ceiling: {formatArea(summary.ceilingArea)} + Running Feet: {formatArea(summary.runningFeetArea)}
                 </div>
               </div>
             </div>

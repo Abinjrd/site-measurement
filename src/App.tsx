@@ -15,11 +15,11 @@ function App() {
       name: `Room ${rooms.length + 1}`,
       walls: [],
       openings: [],
+      runningFeet: [],
       ceiling: {
         length: 0,
         width: 0,
-        includeCeiling: false,
-        runningFeet: 0
+        includeCeiling: false
       }
     };
     setRooms([...rooms, newRoom]);

@@ -18,15 +18,18 @@ export const WallInput: React.FC<WallInputProps> = ({
 }) => {
   const [height, setHeight] = useState('');
   const [width, setWidth] = useState('');
+  const [quantity, setQuantity] = useState('1');
 
   const handleAddWall = () => {
     const h = parseFloat(height);
     const w = parseFloat(width);
+    const q = parseInt(quantity) || 1;
     
-    if (h > 0 && w > 0) {
-      onAddWall({ height: h, width: w });
+    if (h > 0 && w > 0 && q > 0) {
+      onAddWall({ height: h, width: w, quantity: q });
       setHeight('');
       setWidth('');
+      setQuantity('1');
     }
   };
 
@@ -43,7 +46,7 @@ export const WallInput: React.FC<WallInputProps> = ({
         Walls
       </h4>
       
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">
             Height (ft)
@@ -74,6 +77,20 @@ export const WallInput: React.FC<WallInputProps> = ({
             min="0"
           />
         </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            Quantity
+          </label>
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="1"
+            min="1"
+          />
+        </div>
         <div className="flex items-end">
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -97,16 +114,16 @@ export const WallInput: React.FC<WallInputProps> = ({
               exit={{ opacity: 0, y: -10 }}
               className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-600">
                   Wall {index + 1}:
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <input
                     type="number"
                     value={wall.height}
                     onChange={(e) => onUpdateWall(wall.id, { height: parseFloat(e.target.value) || 0 })}
-                    className="w-16 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-blue-500"
+                    className="w-14 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-blue-500"
                     step="0.1"
                     min="0"
                   />
@@ -115,14 +132,22 @@ export const WallInput: React.FC<WallInputProps> = ({
                     type="number"
                     value={wall.width}
                     onChange={(e) => onUpdateWall(wall.id, { width: parseFloat(e.target.value) || 0 })}
-                    className="w-16 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-blue-500"
+                    className="w-14 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-blue-500"
                     step="0.1"
                     min="0"
                   />
-                  <span className="text-xs text-gray-500">ft</span>
+                  <span className="text-xs text-gray-500">×</span>
+                  <input
+                    type="number"
+                    value={wall.quantity}
+                    onChange={(e) => onUpdateWall(wall.id, { quantity: parseInt(e.target.value) || 1 })}
+                    className="w-12 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-blue-500"
+                    min="1"
+                  />
+                  <span className="text-xs text-gray-500">qty</span>
                 </div>
                 <span className="text-sm text-gray-800 font-medium">
-                  = {(wall.height * wall.width).toFixed(2)} sq ft
+                  = {(wall.height * wall.width * wall.quantity).toFixed(2)} sq ft
                 </span>
               </div>
               <motion.button
