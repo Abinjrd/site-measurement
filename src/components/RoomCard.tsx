@@ -86,21 +86,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
     });
   };
 
-  const handleAddCeiling = (ceilingData: Omit<Wall, 'id'>) => {
-    const newCeiling: Wall = { ...ceilingData, id: uuidv4() };
-    onUpdateRoom(room.id, { ceilings: [...room.ceilings, newCeiling] });
-  };
-
-  const handleRemoveCeiling = (ceilingId: string) => {
-    onUpdateRoom(room.id, { ceilings: room.ceilings.filter(c => c.id !== ceilingId) });
-  };
-
-  const handleUpdateCeiling = (ceilingId: string, updates: Partial<Wall>) => {
-    onUpdateRoom(room.id, {
-      ceilings: room.ceilings.map(c => c.id === ceilingId ? { ...c, ...updates } : c)
-    });
-  };
-
   const handleSaveName = () => {
     if (editedName.trim()) {
       onUpdateRoom(room.id, { name: editedName.trim() });
