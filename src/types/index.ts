@@ -25,11 +25,15 @@ export interface Room {
   walls: Wall[];
   openings: Opening[];
   runningFeet: RunningFeet[];
-  ceiling?: {
-    length: number;
-    width: number;
-    includeCeiling: boolean;
-  };
+  ceilings: Wall[];
+}
+
+export interface ProjectDetails {
+  projectName: string;
+  clientName: string;
+  clientAddress: string;
+  contractorName: string;
+  contractorPhone: string;
 }
 
 export interface CalculationSummary {

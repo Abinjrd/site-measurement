@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Home, Ruler } from 'lucide-react';
-import { Room } from './types';
+import { Plus, Home, Ruler, FileText, User } from 'lucide-react';
+import { Room, ProjectDetails } from './types';
 import { RoomCard } from './components/RoomCard';
 import { ProjectSummary } from './components/ProjectSummary';
+import { ProjectDetailsModal } from './components/ProjectDetailsModal';
 import { v4 as uuidv4 } from 'uuid';
 
 function App() {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [showProjectDetails, setShowProjectDetails] = useState(false);
+  const [projectDetails, setProjectDetails] = useState<ProjectDetails>({
+    projectName: '',
+    clientName: '',
+    clientAddress: '',
+    contractorName: '',
+    contractorPhone: ''
+  });
 
   const handleAddRoom = () => {
     const newRoom: Room = {
@@ -16,11 +25,7 @@ function App() {
       walls: [],
       openings: [],
       runningFeet: [],
-      ceiling: {
-        length: 0,
-        width: 0,
-        includeCeiling: false
-      }
+      ceilings: []
     };
     setRooms([...rooms, newRoom]);
   };
@@ -62,8 +67,17 @@ function App() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center gap-4 mb-8"
         >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowProjectDetails(true)}
+            className="bg-gray-600 text-white px-6 py-3 rounded-xl hover:bg-gray-700 transition-colors flex items-center gap-3 shadow-lg font-semibold"
+          >
+            <User className="w-5 h-5" />
+            Project Details
+          </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -117,7 +131,7 @@ function App() {
           {/* Summary Section */}
           <div className="xl:col-span-1">
             <div className="sticky top-8">
-              <ProjectSummary rooms={rooms} />
+              <ProjectSummary rooms={rooms} projectDetails={projectDetails} />
             </div>
           </div>
         </div>
@@ -133,6 +147,14 @@ function App() {
             Professional tool for gypsum board and wallpaper contractors
           </p>
         </motion.footer>
+
+        {/* Project Details Modal */}
+        <ProjectDetailsModal
+          isOpen={showProjectDetails}
+          onClose={() => setShowProjectDetails(false)}
+          projectDetails={projectDetails}
+          onUpdateProjectDetails={setProjectDetails}
+        />
       </div>
     </div>
   );

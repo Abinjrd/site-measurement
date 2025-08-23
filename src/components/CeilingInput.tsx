@@ -1,72 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Square } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
+import { Wall } from '../types';
 
 interface CeilingInputProps {
-  ceiling?: {
-    length: number;
-    width: number;
-    includeCeiling: boolean;
-  };
-  onUpdateCeiling: (ceiling: { length: number; width: number; includeCeiling: boolean }) => void;
+  ceilings: Wall[];
+  onAddCeiling: (ceiling: Omit<Wall, 'id'>) => void;
+  onRemoveCeiling: (id: string) => void;
+  onUpdateCeiling: (id: string, updates: Partial<Wall>) => void;
 }
 
 export const CeilingInput: React.FC<CeilingInputProps> = ({
-  ceiling,
+  ceilings,
+  onAddCeiling,
+  onRemoveCeiling,
   onUpdateCeiling
 }) => {
-  const handleToggleCeiling = () => {
-    const newCeiling = {
-      length: ceiling?.length || 0,
-      width: ceiling?.width || 0,
-      includeCeiling: !ceiling?.includeCeiling
-    };
-    onUpdateCeiling(newCeiling);
+  const [height, setHeight] = useState('');
+  const [width, setWidth] = useState('');
+  const [quantity, setQuantity] = useState('1');
+
+  const handleAddCeiling = () => {
+    const h = parseFloat(height);
+    const w = parseFloat(width);
+    const q = parseInt(quantity) || 1;
+    
+    if (h > 0 && w > 0 && q > 0) {
+      onAddCeiling({ height: h, width: w, quantity: q });
+      setHeight('');
+      setWidth('');
+      setQuantity('1');
+    }
   };
 
-  const handleUpdateDimension = (field: 'length' | 'width', value: string) => {
-    const numValue = parseFloat(value) || 0;
-    const newCeiling = {
-      length: ceiling?.length || 0,
-      width: ceiling?.width || 0,
-      includeCeiling: ceiling?.includeCeiling || false,
-      [field]: numValue
-    };
-    onUpdateCeiling(newCeiling);
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleAddCeiling();
+    }
   };
-
-  const ceilingArea = ceiling?.includeCeiling ? (ceiling.length * ceiling.width) : 0;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
-          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-          Ceiling
-        </h4>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleToggleCeiling}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-            ceiling?.includeCeiling
-              ? 'bg-purple-600 text-white'
-              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-          }`}
-        >
-          {ceiling?.includeCeiling ? 'Included' : 'Include'}
-        </motion.button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+        Ceilings
+      </h4>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">
             Length (ft)
           </label>
           <input
             type="number"
-            value={ceiling?.length || ''}
-            onChange={(e) => handleUpdateDimension('length', e.target.value)}
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+            onKeyPress={handleKeyPress}
             className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             placeholder="12"
             step="0.1"
@@ -79,27 +68,98 @@ export const CeilingInput: React.FC<CeilingInputProps> = ({
           </label>
           <input
             type="number"
-            value={ceiling?.width || ''}
-            onChange={(e) => handleUpdateDimension('width', e.target.value)}
+            value={width}
+            onChange={(e) => setWidth(e.target.value)}
+            onKeyPress={handleKeyPress}
             className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             placeholder="10"
             step="0.1"
             min="0"
           />
         </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            Quantity
+          </label>
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            placeholder="1"
+            min="1"
+          />
+        </div>
+        <div className="flex items-end">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleAddCeiling}
+            className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Ceiling
+          </motion.button>
+        </div>
       </div>
 
-      {ceilingArea > 0 && ceiling?.includeCeiling && (
-        <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-          <div className="flex items-center gap-2">
-            <Square className="w-4 h-4 text-purple-600" />
-            <span className="text-sm font-medium text-gray-600">
-              Ceiling: {ceiling.length}' × {ceiling.width}'
-            </span>
-          </div>
-          <span className="text-sm text-gray-800 font-medium">
-            = {ceilingArea.toFixed(2)} sq ft
-          </span>
+      {ceilings.length > 0 && (
+        <div className="space-y-2">
+          {ceilings.map((ceiling, index) => (
+            <motion.div
+              key={ceiling.id}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-600">
+                  Ceiling {index + 1}:
+                </span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    value={ceiling.height}
+                    onChange={(e) => onUpdateCeiling(ceiling.id, { height: parseFloat(e.target.value) || 0 })}
+                    className="w-14 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
+                    step="0.1"
+                    min="0"
+                  />
+                  <span className="text-xs text-gray-500">×</span>
+                  <input
+                    type="number"
+                    value={ceiling.width}
+                    onChange={(e) => onUpdateCeiling(ceiling.id, { width: parseFloat(e.target.value) || 0 })}
+                    className="w-14 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
+                    step="0.1"
+                    min="0"
+                  />
+                  <span className="text-xs text-gray-500">×</span>
+                  <input
+                    type="number"
+                    value={ceiling.quantity}
+                    onChange={(e) => onUpdateCeiling(ceiling.id, { quantity: parseInt(e.target.value) || 1 })}
+                    className="w-12 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
+                    min="1"
+                  />
+                  <span className="text-xs text-gray-500">qty</span>
+                </div>
+                <span className="text-sm text-gray-800 font-medium">
+                  = {(ceiling.height * ceiling.width * ceiling.quantity).toFixed(2)} sq ft
+                </span>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => onRemoveCeiling(ceiling.id)}
+                className="text-red-500 hover:text-red-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </motion.button>
+            </motion.div>
+          ))}
         </div>
       )}
     </div>

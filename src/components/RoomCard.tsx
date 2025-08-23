@@ -56,8 +56,19 @@ export const RoomCard: React.FC<RoomCardProps> = ({
     });
   };
 
-  const handleUpdateCeiling = (ceiling: { length: number; width: number; includeCeiling: boolean }) => {
-    onUpdateRoom(room.id, { ceiling });
+  const handleAddCeiling = (ceilingData: Omit<Wall, 'id'>) => {
+    const newCeiling: Wall = { ...ceilingData, id: uuidv4() };
+    onUpdateRoom(room.id, { ceilings: [...room.ceilings, newCeiling] });
+  };
+
+  const handleRemoveCeiling = (ceilingId: string) => {
+    onUpdateRoom(room.id, { ceilings: room.ceilings.filter(c => c.id !== ceilingId) });
+  };
+
+  const handleUpdateCeiling = (ceilingId: string, updates: Partial<Wall>) => {
+    onUpdateRoom(room.id, {
+      ceilings: room.ceilings.map(c => c.id === ceilingId ? { ...c, ...updates } : c)
+    });
   };
 
   const handleAddRunningFeet = (runningFeetData: Omit<RunningFeet, 'id'>) => {
@@ -72,6 +83,21 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   const handleUpdateRunningFeet = (runningFeetId: string, updates: Partial<RunningFeet>) => {
     onUpdateRoom(room.id, {
       runningFeet: room.runningFeet.map(rf => rf.id === runningFeetId ? { ...rf, ...updates } : rf)
+    });
+  };
+
+  const handleAddCeiling = (ceilingData: Omit<Wall, 'id'>) => {
+    const newCeiling: Wall = { ...ceilingData, id: uuidv4() };
+    onUpdateRoom(room.id, { ceilings: [...room.ceilings, newCeiling] });
+  };
+
+  const handleRemoveCeiling = (ceilingId: string) => {
+    onUpdateRoom(room.id, { ceilings: room.ceilings.filter(c => c.id !== ceilingId) });
+  };
+
+  const handleUpdateCeiling = (ceilingId: string, updates: Partial<Wall>) => {
+    onUpdateRoom(room.id, {
+      ceilings: room.ceilings.map(c => c.id === ceilingId ? { ...c, ...updates } : c)
     });
   };
 
@@ -160,7 +186,9 @@ export const RoomCard: React.FC<RoomCardProps> = ({
       {/* All measurements with equal importance */}
       <div className="space-y-6 mb-6">
         <CeilingInput
-          ceiling={room.ceiling}
+          ceilings={room.ceilings}
+          onAddCeiling={handleAddCeiling}
+          onRemoveCeiling={handleRemoveCeiling}
           onUpdateCeiling={handleUpdateCeiling}
         />
 

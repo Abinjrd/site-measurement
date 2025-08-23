@@ -4,20 +4,22 @@ import { Calculator, FileText, Download } from 'lucide-react';
 import { Room } from '../types';
 import { calculateRoomArea, calculateProjectTotal, formatArea } from '../utils/calculations';
 import { exportToPDF, exportToCSV } from '../utils/export';
+import { ProjectDetails } from '../types';
 
 interface ProjectSummaryProps {
   rooms: Room[];
+  projectDetails: ProjectDetails;
 }
 
-export const ProjectSummary: React.FC<ProjectSummaryProps> = ({ rooms }) => {
+export const ProjectSummary: React.FC<ProjectSummaryProps> = ({ rooms, projectDetails }) => {
   const projectTotal = calculateProjectTotal(rooms);
 
   const handleExportPDF = () => {
-    exportToPDF(rooms);
+    exportToPDF(rooms, projectDetails);
   };
 
   const handleExportCSV = () => {
-    exportToCSV(rooms);
+    exportToCSV(rooms, projectDetails);
   };
 
   if (rooms.length === 0) {
@@ -76,7 +78,7 @@ export const ProjectSummary: React.FC<ProjectSummaryProps> = ({ rooms }) => {
                   <span>Walls: {room.walls.length}</span>
                   <span>Openings: {room.openings.length}</span>
                   <span>Running Feet: {room.runningFeet.length}</span>
-                  {room.ceiling?.includeCeiling && <span>Ceiling: Yes</span>}
+                  <span>Ceilings: {room.ceilings.length}</span>
                 </div>
               </div>
               <div className="text-right">

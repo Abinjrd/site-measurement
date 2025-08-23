@@ -9,9 +9,9 @@ export const calculateRoomArea = (room: Room): CalculationSummary => {
     return sum + (opening.height * opening.width * opening.quantity);
   }, 0);
 
-  const ceilingArea = room.ceiling?.includeCeiling 
-    ? (room.ceiling.length * room.ceiling.width)
-    : 0;
+  const ceilingArea = room.ceilings.reduce((sum, ceiling) => {
+    return sum + (ceiling.height * ceiling.width * ceiling.quantity);
+  }, 0);
 
   const runningFeetArea = room.runningFeet?.reduce((sum, rf) => {
     return sum + (rf.length * rf.quantity);
