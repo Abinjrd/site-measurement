@@ -140,16 +140,13 @@ export const RoomCard: React.FC<RoomCardProps> = ({
         </motion.button>
       </div>
 
-      {/* Ceiling Input - Always at top and prominent */}
-      <div className="mb-8">
+      {/* All measurements with equal importance */}
+      <div className="space-y-6 mb-6">
         <CeilingInput
           ceiling={room.ceiling}
           onUpdateCeiling={handleUpdateCeiling}
         />
-      </div>
 
-      <div className="space-y-6 mb-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <WallInput
           walls={room.walls}
           onAddWall={handleAddWall}
@@ -162,7 +159,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
           onRemoveOpening={handleRemoveOpening}
           onUpdateOpening={handleUpdateOpening}
         />
-        </div>
       </div>
 
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg">
