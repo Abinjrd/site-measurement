@@ -12,14 +12,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface RoomCardProps {
   room: Room;
-  defaultWallHeight: number;
   onUpdateRoom: (id: string, updates: Partial<Room>) => void;
   onRemoveRoom: (id: string) => void;
 }
 
 export const RoomCard: React.FC<RoomCardProps> = ({
   room,
-  defaultWallHeight,
   onUpdateRoom,
   onRemoveRoom
 }) => {
@@ -181,7 +179,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
 
         <WallInput
           walls={room.walls}
-          defaultHeight={defaultWallHeight}
           onAddWall={handleAddWall}
           onRemoveWall={handleRemoveWall}
           onUpdateWall={handleUpdateWall}

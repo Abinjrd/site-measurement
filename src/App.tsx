@@ -9,7 +9,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 function App() {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [defaultWallHeight, setDefaultWallHeight] = useState<number>(8);
   const [showProjectDetails, setShowProjectDetails] = useState(false);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails>({
     projectName: '',
@@ -122,7 +121,6 @@ function App() {
                     key={room.id}
                     room={room}
                     onUpdateRoom={handleUpdateRoom}
-                  defaultWallHeight={defaultWallHeight}
                     onRemoveRoom={handleRemoveRoom}
                   />
                 ))
