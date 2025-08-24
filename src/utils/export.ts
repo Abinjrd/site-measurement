@@ -1,4 +1,8 @@
 import jsPDF from 'jspdf';
+
+// Make jsPDF globally available for jspdf-autotable
+(window as any).jsPDF = jsPDF;
+
 import 'jspdf-autotable';
 import { Room, CalculationSummary, ProjectDetails } from '../types';
 import { calculateRoomArea, calculateProjectTotal, formatArea } from './calculations';
