@@ -1,6 +1,14 @@
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { Room, CalculationSummary, ProjectDetails } from '../types';
 import { calculateRoomArea, calculateProjectTotal, formatArea } from './calculations';
+
+// Extend jsPDF type to include autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF;
+  }
+}
 
 export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
   const pdf = new jsPDF();
@@ -9,7 +17,7 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
   // Header
   pdf.setFontSize(20);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('"Wall Surface Area Calculation Report"', pageWidth / 2, 20, { align: 'center' });
+  pdf.text('Wall Surface Area Calculation Report', pageWidth / 2, 20, { align: 'center' });
   
   let yPosition = 35;
   
@@ -18,26 +26,26 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
     pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
     if (projectDetails.projectName) {
-      pdf.text(`"Project: ${projectDetails.projectName}"`, 20, yPosition);
+      pdf.text(`Project: "${projectDetails.projectName}"`, 20, yPosition);
       yPosition += 8;
     }
     
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'normal');
     if (projectDetails.clientName) {
-      pdf.text(`"Client: ${projectDetails.clientName}"`, 20, yPosition);
+      pdf.text(`Client: "${projectDetails.clientName}"`, 20, yPosition);
       yPosition += 6;
     }
     if (projectDetails.clientAddress) {
-      pdf.text(`"Address: ${projectDetails.clientAddress}"`, 20, yPosition);
+      pdf.text(`Address: "${projectDetails.clientAddress}"`, 20, yPosition);
       yPosition += 6;
     }
     if (projectDetails.contractorName) {
-      pdf.text(`"Contractor: ${projectDetails.contractorName}"`, 20, yPosition);
+      pdf.text(`Contractor: "${projectDetails.contractorName}"`, 20, yPosition);
       yPosition += 6;
     }
     if (projectDetails.contractorPhone) {
-      pdf.text(`"Phone: ${projectDetails.contractorPhone}"`, 20, yPosition);
+      pdf.text(`Phone: "${projectDetails.contractorPhone}"`, 20, yPosition);
       yPosition += 6;
     }
     yPosition += 5;
@@ -45,99 +53,140 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
   
   pdf.setFontSize(12);
   pdf.setFont('helvetica', 'normal');
-  pdf.text(`"Generated on: ${new Date().toLocaleDateString()}"`, 20, yPosition);
+  pdf.text(`Generated on: "${new Date().toLocaleDateString()}"`, 20, yPosition);
   yPosition += 15;
+
+  // Create table data
+  const tableData: any[] = [];
   
-  rooms.forEach((room, index) => {
+  rooms.forEach((room) => {
     const summary = calculateRoomArea(room);
     
-    // Room header
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`"${room.name}"`, 20, yPosition);
-    yPosition += 10;
+    // Add room header row
+    tableData.push([
+      { content: `"${room.name}"`, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } },
+      { content: '', styles: { fillColor: [240, 240, 240] } },
+      { content: '', styles: { fillColor: [240, 240, 240] } },
+      { content: '', styles: { fillColor: [240, 240, 240] } },
+      { content: '', styles: { fillColor: [240, 240, 240] } },
+      { content: '', styles: { fillColor: [240, 240, 240] } }
+    ]);
     
-    // Ceilings section
+    // Add ceilings
     if (room.ceilings.length > 0) {
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('"Ceilings:"', 25, yPosition);
-      yPosition += 7;
-      
-      room.ceilings.forEach((ceiling, ceilingIndex) => {
+      room.ceilings.forEach((ceiling, index) => {
         const area = ceiling.height * ceiling.width * ceiling.quantity;
-        pdf.text(`  "Ceiling ${ceilingIndex + 1}: ${ceiling.height}' × ${ceiling.width}' × ${ceiling.quantity} = ${formatArea(area)} sq ft"`, 30, yPosition);
-        yPosition += 6;
+        tableData.push([
+          `"Ceiling ${index + 1}"`,
+          `"${ceiling.height}'"`,
+          `"${ceiling.width}'"`,
+          `"${ceiling.quantity}"`,
+          `"${formatArea(area)} sq ft"`,
+          '"Ceiling"'
+        ]);
       });
-      yPosition += 3;
     }
     
-    // Walls section
+    // Add walls
     if (room.walls.length > 0) {
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('"Walls:"', 25, yPosition);
-      yPosition += 7;
-      
-      room.walls.forEach((wall, wallIndex) => {
+      room.walls.forEach((wall, index) => {
         const area = wall.height * wall.width * wall.quantity;
-        pdf.text(`  "Wall ${wallIndex + 1}: ${wall.height}' × ${wall.width}' × ${wall.quantity} = ${formatArea(area)} sq ft"`, 30, yPosition);
-        yPosition += 6;
+        tableData.push([
+          `"Wall ${index + 1}"`,
+          `"${wall.height}'"`,
+          `"${wall.width}'"`,
+          `"${wall.quantity}"`,
+          `"${formatArea(area)} sq ft"`,
+          '"Wall"'
+        ]);
       });
-      yPosition += 3;
     }
     
-    // Openings section
+    // Add openings
     if (room.openings.length > 0) {
-      pdf.text('"Openings:"', 25, yPosition);
-      yPosition += 7;
-      
-      room.openings.forEach((opening, openingIndex) => {
+      room.openings.forEach((opening, index) => {
         const area = opening.height * opening.width * opening.quantity;
-        pdf.text(`  "${opening.type.charAt(0).toUpperCase() + opening.type.slice(1)} ${openingIndex + 1}: ${opening.height}' × ${opening.width}' × ${opening.quantity} = ${formatArea(area)} sq ft"`, 30, yPosition);
-        yPosition += 6;
+        tableData.push([
+          `"${opening.type.charAt(0).toUpperCase() + opening.type.slice(1)} ${index + 1}"`,
+          `"${opening.height}'"`,
+          `"${opening.width}'"`,
+          `"${opening.quantity}"`,
+          `"${formatArea(area)} sq ft"`,
+          '"Opening (Deducted)"'
+        ]);
       });
-      yPosition += 3;
     }
     
-    // Running feet section
+    // Add running feet
     if (room.runningFeet.length > 0) {
-      pdf.text('"Running Feet:"', 25, yPosition);
-      yPosition += 7;
-      
-      room.runningFeet.forEach((rf, rfIndex) => {
+      room.runningFeet.forEach((rf, index) => {
         const area = rf.length * rf.quantity;
-        pdf.text(`  "Running Feet ${rfIndex + 1}: ${rf.length}' × ${rf.quantity} = ${formatArea(area)} sq ft"`, 30, yPosition);
-        yPosition += 6;
+        tableData.push([
+          `"Running Feet ${index + 1}"`,
+          `"${rf.length}'"`,
+          '"-"',
+          `"${rf.quantity}"`,
+          `"${formatArea(area)} sq ft"`,
+          '"Running Feet"'
+        ]);
       });
-      yPosition += 3;
     }
     
-    // Summary for room
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`"Total Wall Area: ${formatArea(summary.totalWallArea)} sq ft"`, 25, yPosition);
-    yPosition += 6;
-    pdf.text(`"Total Openings: ${formatArea(summary.totalOpeningsArea)} sq ft"`, 25, yPosition);
-    yPosition += 6;
-    pdf.text(`"Ceiling Area: ${formatArea(summary.ceilingArea)} sq ft"`, 25, yPosition);
-    yPosition += 6;
-    pdf.text(`"Running Feet Area: ${formatArea(summary.runningFeetArea)} sq ft"`, 25, yPosition);
-    yPosition += 6;
-    pdf.text(`"Net Area: ${formatArea(summary.netArea)} sq ft"`, 25, yPosition);
-    yPosition += 15;
+    // Add room summary
+    tableData.push([
+      { content: '"Room Total"', styles: { fontStyle: 'bold', fillColor: [220, 255, 220] } },
+      { content: '', styles: { fillColor: [220, 255, 220] } },
+      { content: '', styles: { fillColor: [220, 255, 220] } },
+      { content: '', styles: { fillColor: [220, 255, 220] } },
+      { content: `"${formatArea(summary.netArea)} sq ft"`, styles: { fontStyle: 'bold', fillColor: [220, 255, 220] } },
+      { content: '"Net Area"', styles: { fillColor: [220, 255, 220] } }
+    ]);
     
-    // Add page break if needed
-    if (yPosition > 250 && index < rooms.length - 1) {
-      pdf.addPage();
-      yPosition = 20;
-    }
+    // Add empty row for spacing
+    tableData.push(['', '', '', '', '', '']);
   });
   
-  // Project total
+  // Add project total
   const projectTotal = calculateProjectTotal(rooms);
-  pdf.setFontSize(16);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text(`"TOTAL PROJECT AREA: ${formatArea(projectTotal)} sq ft"`, 20, yPosition + 10);
+  tableData.push([
+    { content: '"PROJECT TOTAL"', styles: { fontStyle: 'bold', fillColor: [200, 230, 255], fontSize: 14 } },
+    { content: '', styles: { fillColor: [200, 230, 255] } },
+    { content: '', styles: { fillColor: [200, 230, 255] } },
+    { content: '', styles: { fillColor: [200, 230, 255] } },
+    { content: `"${formatArea(projectTotal)} sq ft"`, styles: { fontStyle: 'bold', fillColor: [200, 230, 255], fontSize: 14 } },
+    { content: '"Total Area"', styles: { fillColor: [200, 230, 255] } }
+  ]);
+
+  // Create the table
+  pdf.autoTable({
+    startY: yPosition,
+    head: [['Item', 'Height/Length', 'Width', 'Quantity', 'Area', 'Type']],
+    body: tableData,
+    theme: 'grid',
+    styles: {
+      fontSize: 10,
+      cellPadding: 3,
+      lineColor: [200, 200, 200],
+      lineWidth: 0.5
+    },
+    headStyles: {
+      fillColor: [100, 150, 200],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 11
+    },
+    alternateRowStyles: {
+      fillColor: [250, 250, 250]
+    },
+    columnStyles: {
+      0: { cellWidth: 35 },
+      1: { cellWidth: 25, halign: 'center' },
+      2: { cellWidth: 25, halign: 'center' },
+      3: { cellWidth: 20, halign: 'center' },
+      4: { cellWidth: 30, halign: 'right' },
+      5: { cellWidth: 35, halign: 'center' }
+    }
+  });
   
   const fileName = projectDetails.projectName 
     ? `${projectDetails.projectName.replace(/[^a-zA-Z0-9]/g, '_')}_calculation.pdf`
