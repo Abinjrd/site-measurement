@@ -90,30 +90,6 @@ function App() {
           </motion.button>
         </motion.div>
 
-        {/* Default Wall Height Setting */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex justify-center mb-8"
-        >
-          <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex items-center gap-4">
-            <label className="text-sm font-medium text-gray-700">
-              Default Wall Height (ft):
-            </label>
-            <input
-              type="number"
-              value={defaultWallHeight}
-              onChange={(e) => setDefaultWallHeight(parseFloat(e.target.value) || 8)}
-              className="w-20 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-center"
-              step="0.1"
-              min="0"
-            />
-            <span className="text-sm text-gray-500">
-              This will be the default height for new walls
-            </span>
-          </div>
-        </motion.div>
-
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Rooms Section */}
           <div className="xl:col-span-2 space-y-6">
