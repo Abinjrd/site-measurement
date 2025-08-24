@@ -1,4 +1,4 @@
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 
 // Make jsPDF globally available for jspdf-autotable
 (window as any).jsPDF = jsPDF;
