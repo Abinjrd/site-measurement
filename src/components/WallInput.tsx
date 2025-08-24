@@ -5,6 +5,7 @@ import { Wall } from '../types';
 
 interface WallInputProps {
   walls: Wall[];
+  defaultHeight: number;
   onAddWall: (wall: Omit<Wall, 'id'>) => void;
   onRemoveWall: (id: string) => void;
   onUpdateWall: (id: string, updates: Partial<Wall>) => void;
@@ -12,22 +13,14 @@ interface WallInputProps {
 
 export const WallInput: React.FC<WallInputProps> = ({
   walls,
+  defaultHeight,
   onAddWall,
   onRemoveWall,
   onUpdateWall
 }) => {
-  // Use height from first wall or default to 8
-  const defaultHeight = walls.length > 0 ? walls[0].height : 8;
   const [height, setHeight] = useState(defaultHeight.toString());
   const [width, setWidth] = useState('');
   const [quantity, setQuantity] = useState('1');
-
-  // Update height when walls change (when first wall is added)
-  React.useEffect(() => {
-    if (walls.length > 0) {
-      setHeight(walls[0].height.toString());
-    }
-  }, [walls.length > 0 ? walls[0]?.height : null]);
 
   const handleAddWall = () => {
     const h = parseFloat(height);
@@ -36,7 +29,7 @@ export const WallInput: React.FC<WallInputProps> = ({
     
     if (h > 0 && w > 0 && q > 0) {
       onAddWall({ height: h, width: w, quantity: q });
-      // Keep the same height for next wall
+      setHeight(defaultHeight.toString());
       setWidth('');
       setQuantity('1');
     }
@@ -66,7 +59,7 @@ export const WallInput: React.FC<WallInputProps> = ({
             onChange={(e) => setHeight(e.target.value)}
             onKeyPress={handleKeyPress}
             className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder="8"
+            placeholder={defaultHeight.toString()}
             step="0.1"
             min="0"
           />
