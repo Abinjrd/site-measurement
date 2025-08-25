@@ -10,45 +10,36 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
   const contentWidth = pageWidth - (margin * 2);
   
   // Colors
-  const primaryColor = [41, 98, 255]; // Professional blue
-  const secondaryColor = [71, 85, 105]; // Slate gray
-  const accentColor = [34, 197, 94]; // Professional green
+  const headerColor = [41, 98, 255];
   const lightGray = [248, 250, 252];
   const darkGray = [30, 41, 59];
+  const borderColor = [200, 200, 200];
   
-  // Professional header
-  pdf.setFillColor(...primaryColor);
-  pdf.rect(0, 0, pageWidth, 40, 'F');
+  // Header
+  pdf.setFillColor(...headerColor);
+  pdf.rect(0, 0, pageWidth, 35, 'F');
   
-  // Logo area
-  pdf.setFontSize(20);
+  pdf.setFontSize(18);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(255, 255, 255);
-  pdf.text('📐', margin, 25);
-  
-  // Main title - centered and professional
-  pdf.setFontSize(16);
-  pdf.setFont('helvetica', 'bold');
   const title = 'WALL SURFACE AREA CALCULATION REPORT';
   const titleWidth = pdf.getTextWidth(title);
-  pdf.text(title, (pageWidth - titleWidth) / 2, 25);
+  pdf.text(title, (pageWidth - titleWidth) / 2, 22);
   
-  let yPosition = 55;
+  let yPosition = 50;
   
-  // Project Details Section with professional layout
+  // Project Details
   if (projectDetails.projectName || projectDetails.clientName) {
-    // Section header with background
     pdf.setFillColor(...lightGray);
-    pdf.rect(margin, yPosition - 8, contentWidth, 12, 'F');
+    pdf.rect(margin, yPosition - 5, contentWidth, 12, 'F');
     
-    pdf.setFontSize(11);
+    pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(...darkGray);
-    pdf.text('PROJECT INFORMATION', margin + 5, yPosition - 2);
-    yPosition += 15;
+    pdf.text('PROJECT INFORMATION', margin + 5, yPosition + 2);
+    yPosition += 20;
     
-    // Two-column layout for project details
-    pdf.setFontSize(9);
+    pdf.setFontSize(10);
     pdf.setTextColor(0, 0, 0);
     
     const leftColumn = margin + 5;
@@ -60,16 +51,16 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
       pdf.setFont('helvetica', 'bold');
       pdf.text('Project Name:', leftColumn, leftY);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(projectDetails.projectName, leftColumn + 25, leftY);
-      leftY += 8;
+      pdf.text(projectDetails.projectName, leftColumn + 30, leftY);
+      leftY += 10;
     }
     
     if (projectDetails.clientName) {
       pdf.setFont('helvetica', 'bold');
       pdf.text('Client Name:', leftColumn, leftY);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(projectDetails.clientName, leftColumn + 25, leftY);
-      leftY += 8;
+      pdf.text(projectDetails.clientName, leftColumn + 30, leftY);
+      leftY += 10;
     }
     
     if (projectDetails.contractorName) {
@@ -77,7 +68,7 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
       pdf.text('Contractor:', rightColumn, rightY);
       pdf.setFont('helvetica', 'normal');
       pdf.text(projectDetails.contractorName, rightColumn + 25, rightY);
-      rightY += 8;
+      rightY += 10;
     }
     
     if (projectDetails.contractorPhone) {
@@ -85,7 +76,7 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
       pdf.text('Phone:', rightColumn, rightY);
       pdf.setFont('helvetica', 'normal');
       pdf.text(projectDetails.contractorPhone, rightColumn + 25, rightY);
-      rightY += 8;
+      rightY += 10;
     }
     
     if (projectDetails.clientAddress) {
@@ -93,28 +84,18 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
       pdf.setFont('helvetica', 'bold');
       pdf.text('Address:', leftColumn, maxY);
       pdf.setFont('helvetica', 'normal');
-      const addressLines = pdf.splitTextToSize(projectDetails.clientAddress, contentWidth - 30);
+      const addressLines = pdf.splitTextToSize(projectDetails.clientAddress, contentWidth - 35);
       pdf.text(addressLines, leftColumn + 25, maxY);
-      yPosition = maxY + (addressLines.length * 6) + 5;
+      yPosition = maxY + (addressLines.length * 6) + 10;
     } else {
-      yPosition = Math.max(leftY, rightY) + 5;
+      yPosition = Math.max(leftY, rightY) + 10;
     }
   }
   
-  // Report metadata
-  pdf.setFillColor(...lightGray);
-  pdf.rect(margin, yPosition - 8, contentWidth, 12, 'F');
-  
-  pdf.setFontSize(11);
-  pdf.setFont('helvetica', 'bold');
-  pdf.setTextColor(...darkGray);
-  pdf.text('REPORT DETAILS', margin + 5, yPosition - 2);
-  
-  yPosition += 10;
+  // Report Date
   pdf.setFontSize(9);
   pdf.setFont('helvetica', 'normal');
-  pdf.setTextColor(0, 0, 0);
-  
+  pdf.setTextColor(100, 100, 100);
   const reportDate = new Date().toLocaleDateString('en-US', { 
     year: 'numeric', 
     month: 'long', 
@@ -122,169 +103,205 @@ export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
     hour: '2-digit',
     minute: '2-digit'
   });
-  
-  pdf.text(`Report Generated: ${reportDate}`, margin + 5, yPosition);
-  pdf.text(`Total Rooms: ${rooms.length}`, pageWidth - margin - 40, yPosition);
-  
-  yPosition += 20;
+  pdf.text(`Report Generated: ${reportDate}`, margin, yPosition);
+  yPosition += 25;
 
-  // Room details with professional formatting
+  // Room tables
   rooms.forEach((room, roomIndex) => {
     const summary = calculateRoomArea(room);
     
     // Check for page break
-    if (yPosition > pageHeight - 100) {
+    if (yPosition > pageHeight - 120) {
       pdf.addPage();
       yPosition = 30;
     }
     
-    // Room header with professional styling
-    pdf.setFillColor(...primaryColor);
-    pdf.rect(margin, yPosition - 8, contentWidth, 16, 'F');
+    // Room header
+    pdf.setFillColor(...headerColor);
+    pdf.rect(margin, yPosition - 5, contentWidth, 15, 'F');
     
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(255, 255, 255);
-    pdf.text(`ROOM ${roomIndex + 1}: ${room.name.toUpperCase()}`, margin + 5, yPosition);
+    pdf.text(`ROOM ${roomIndex + 1}: ${room.name.toUpperCase()}`, margin + 5, yPosition + 5);
     
-    // Room total in header
-    const roomTotalText = `${formatArea(summary.netArea)} SQ FT`;
+    const roomTotalText = `Total: ${formatArea(summary.netArea)} sq ft`;
     const roomTotalWidth = pdf.getTextWidth(roomTotalText);
-    pdf.text(roomTotalText, pageWidth - margin - roomTotalWidth - 5, yPosition);
+    pdf.text(roomTotalText, pageWidth - margin - roomTotalWidth - 5, yPosition + 5);
     
-    yPosition += 20;
+    yPosition += 25;
     
-    // Measurement sections with aligned columns
-    const sections = [
-      { title: 'CEILINGS', items: room.ceilings, color: [147, 51, 234] },
-      { title: 'WALLS', items: room.walls, color: [59, 130, 246] },
-      { title: 'OPENINGS (DEDUCTED)', items: room.openings, color: [245, 158, 11] },
-      { title: 'RUNNING FEET', items: room.runningFeet, color: [16, 185, 129] }
+    // Table setup
+    const tableStartY = yPosition;
+    const rowHeight = 12;
+    const colWidths = [40, 30, 30, 20, 35];
+    const colPositions = [
+      margin,
+      margin + colWidths[0],
+      margin + colWidths[0] + colWidths[1],
+      margin + colWidths[0] + colWidths[1] + colWidths[2],
+      margin + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]
     ];
     
-    sections.forEach(section => {
-      if (section.items.length > 0) {
-        // Section header
-        pdf.setFillColor(...section.color);
-        pdf.rect(margin + 10, yPosition - 6, contentWidth - 20, 10, 'F');
-        
-        pdf.setFontSize(9);
-        pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(255, 255, 255);
-        pdf.text(section.title, margin + 15, yPosition - 1);
-        yPosition += 12;
-        
-        // Column headers
-        pdf.setFontSize(8);
-        pdf.setTextColor(...darkGray);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Description', margin + 15, yPosition);
-        pdf.text('Dimensions', margin + 80, yPosition);
-        pdf.text('Qty', margin + 130, yPosition);
-        pdf.text('Area (sq ft)', pageWidth - margin - 35, yPosition);
-        yPosition += 8;
-        
-        // Items with proper alignment
-        pdf.setFont('helvetica', 'normal');
-        pdf.setTextColor(0, 0, 0);
-        
-        section.items.forEach((item, index) => {
-          let area, description, dimensions, qty;
-          
-          if (section.title === 'RUNNING FEET') {
-            area = item.length * item.quantity;
-            description = 'Linear measurement';
-            dimensions = `${item.length}'`;
-            qty = item.quantity.toString();
-          } else if (section.title === 'OPENINGS (DEDUCTED)') {
-            area = item.height * item.width * item.quantity;
-            description = item.type.charAt(0).toUpperCase() + item.type.slice(1);
-            dimensions = `${item.height}' × ${item.width}'`;
-            qty = item.quantity.toString();
-          } else {
-            area = item.height * item.width * item.quantity;
-            description = section.title === 'CEILINGS' ? 'Ceiling surface' : 'Wall surface';
-            dimensions = `${item.height}' × ${item.width}'`;
-            qty = item.quantity.toString();
-          }
-          
-          // Alternating row background
-          if (index % 2 === 0) {
-            pdf.setFillColor(250, 250, 250);
-            pdf.rect(margin + 15, yPosition - 4, contentWidth - 30, 8, 'F');
-          }
-          
-          // Left-aligned text
-          pdf.text(description, margin + 17, yPosition);
-          pdf.text(dimensions, margin + 82, yPosition);
-          pdf.text(qty, margin + 132, yPosition);
-          
-          // Right-aligned area
-          const areaText = formatArea(area);
-          const areaWidth = pdf.getTextWidth(areaText);
-          pdf.text(areaText, pageWidth - margin - 5 - areaWidth, yPosition);
-          
-          yPosition += 8;
-        });
-        
-        yPosition += 5;
-      }
+    // Table header
+    pdf.setFillColor(...lightGray);
+    pdf.rect(margin, yPosition - 3, contentWidth, rowHeight, 'F');
+    
+    // Table borders
+    pdf.setDrawColor(...borderColor);
+    pdf.setLineWidth(0.5);
+    pdf.rect(margin, yPosition - 3, contentWidth, rowHeight);
+    
+    // Vertical lines
+    colPositions.slice(1).forEach(pos => {
+      pdf.line(pos, yPosition - 3, pos, yPosition + rowHeight - 3);
     });
     
-    // Room calculation summary
-    pdf.setFillColor(245, 245, 245);
-    pdf.rect(margin + 10, yPosition - 5, contentWidth - 20, 20, 'F');
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(...darkGray);
+    pdf.text('Type', colPositions[0] + 2, yPosition + 5);
+    pdf.text('Height', colPositions[1] + 2, yPosition + 5);
+    pdf.text('Width', colPositions[2] + 2, yPosition + 5);
+    pdf.text('Qty', colPositions[3] + 2, yPosition + 5);
+    pdf.text('Area (sq ft)', colPositions[4] + 2, yPosition + 5);
     
-    pdf.setFontSize(8);
+    yPosition += rowHeight;
+    
+    // Collect all measurements
+    const measurements = [];
+    
+    // Ceilings
+    room.ceilings.forEach((ceiling, index) => {
+      measurements.push({
+        type: `Ceiling ${index + 1}`,
+        height: ceiling.height,
+        width: ceiling.width,
+        quantity: ceiling.quantity,
+        area: ceiling.height * ceiling.width * ceiling.quantity
+      });
+    });
+    
+    // Walls
+    room.walls.forEach((wall, index) => {
+      measurements.push({
+        type: `Wall ${index + 1}`,
+        height: wall.height,
+        width: wall.width,
+        quantity: wall.quantity,
+        area: wall.height * wall.width * wall.quantity
+      });
+    });
+    
+    // Openings
+    room.openings.forEach((opening, index) => {
+      measurements.push({
+        type: `${opening.type.charAt(0).toUpperCase() + opening.type.slice(1)} ${index + 1}`,
+        height: opening.height,
+        width: opening.width,
+        quantity: opening.quantity,
+        area: -(opening.height * opening.width * opening.quantity)
+      });
+    });
+    
+    // Running Feet
+    room.runningFeet.forEach((rf, index) => {
+      measurements.push({
+        type: `Running Feet ${index + 1}`,
+        height: rf.length,
+        width: 1,
+        quantity: rf.quantity,
+        area: rf.length * rf.quantity
+      });
+    });
+    
+    // Table rows
     pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(...secondaryColor);
-    pdf.text('CALCULATION:', margin + 15, yPosition + 2);
+    pdf.setTextColor(0, 0, 0);
     
-    const calcText = `Walls: ${formatArea(summary.totalWallArea)} - Openings: ${formatArea(summary.totalOpeningsArea)} + Ceiling: ${formatArea(summary.ceilingArea)} + Running Feet: ${formatArea(summary.runningFeetArea)}`;
-    pdf.text(calcText, margin + 15, yPosition + 8);
+    measurements.forEach((measurement, index) => {
+      // Alternating row background
+      if (index % 2 === 0) {
+        pdf.setFillColor(252, 252, 252);
+        pdf.rect(margin, yPosition - 3, contentWidth, rowHeight, 'F');
+      }
+      
+      // Row border
+      pdf.setDrawColor(...borderColor);
+      pdf.rect(margin, yPosition - 3, contentWidth, rowHeight);
+      
+      // Vertical lines
+      colPositions.slice(1).forEach(pos => {
+        pdf.line(pos, yPosition - 3, pos, yPosition + rowHeight - 3);
+      });
+      
+      // Data
+      pdf.text(measurement.type, colPositions[0] + 2, yPosition + 5);
+      pdf.text(measurement.height.toString(), colPositions[1] + 2, yPosition + 5);
+      pdf.text(measurement.width.toString(), colPositions[2] + 2, yPosition + 5);
+      pdf.text(measurement.quantity.toString(), colPositions[3] + 2, yPosition + 5);
+      
+      const areaText = formatArea(Math.abs(measurement.area));
+      const areaColor = measurement.area < 0 ? [220, 38, 38] : [0, 0, 0];
+      pdf.setTextColor(...areaColor);
+      pdf.text(measurement.area < 0 ? `(${areaText})` : areaText, colPositions[4] + 2, yPosition + 5);
+      pdf.setTextColor(0, 0, 0);
+      
+      yPosition += rowHeight;
+    });
+    
+    // Room total row
+    pdf.setFillColor(240, 253, 244);
+    pdf.rect(margin, yPosition - 3, contentWidth, rowHeight, 'F');
+    pdf.setDrawColor(...borderColor);
+    pdf.rect(margin, yPosition - 3, contentWidth, rowHeight);
+    
+    // Vertical lines
+    colPositions.slice(1).forEach(pos => {
+      pdf.line(pos, yPosition - 3, pos, yPosition + rowHeight - 3);
+    });
     
     pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(...accentColor);
-    const netText = `NET TOTAL: ${formatArea(summary.netArea)} SQ FT`;
-    const netWidth = pdf.getTextWidth(netText);
-    pdf.text(netText, pageWidth - margin - 15 - netWidth, yPosition + 8);
+    pdf.text('ROOM TOTAL', colPositions[0] + 2, yPosition + 5);
+    pdf.setTextColor(34, 197, 94);
+    pdf.text(formatArea(summary.netArea), colPositions[4] + 2, yPosition + 5);
+    pdf.setTextColor(0, 0, 0);
     
-    yPosition += 30;
+    yPosition += rowHeight + 20;
   });
   
-  // Project total section
+  // Project total
   const projectTotal = calculateProjectTotal(rooms);
   
-  if (yPosition > pageHeight - 50) {
+  if (yPosition > pageHeight - 40) {
     pdf.addPage();
     yPosition = 30;
   }
   
-  // Professional project total
-  pdf.setFillColor(...accentColor);
-  pdf.rect(margin, yPosition - 8, contentWidth, 20, 'F');
+  pdf.setFillColor(34, 197, 94);
+  pdf.rect(margin, yPosition - 5, contentWidth, 20, 'F');
   
   pdf.setFontSize(14);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(255, 255, 255);
-  pdf.text('PROJECT TOTAL:', margin + 10, yPosition + 2);
+  pdf.text('PROJECT TOTAL:', margin + 10, yPosition + 7);
   
-  const totalText = `${formatArea(projectTotal)} SQ FT`;
+  const totalText = `${formatArea(projectTotal)} sq ft`;
   const totalWidth = pdf.getTextWidth(totalText);
-  pdf.text(totalText, pageWidth - margin - 10 - totalWidth, yPosition + 2);
+  pdf.text(totalText, pageWidth - margin - 10 - totalWidth, yPosition + 7);
   
   // Footer
   pdf.setFillColor(248, 250, 252);
-  pdf.rect(0, pageHeight - 25, pageWidth, 25, 'F');
+  pdf.rect(0, pageHeight - 20, pageWidth, 20, 'F');
   
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'normal');
-  pdf.setTextColor(...secondaryColor);
-  const footerText = 'Professional Wall Surface Area Calculator - Generated for Construction Professionals';
+  pdf.setTextColor(100, 100, 100);
+  const footerText = 'Professional Wall Surface Area Calculator';
   const footerWidth = pdf.getTextWidth(footerText);
-  pdf.text(footerText, (pageWidth - footerWidth) / 2, pageHeight - 12);
+  pdf.text(footerText, (pageWidth - footerWidth) / 2, pageHeight - 10);
   
-  // Save with professional filename
+  // Save file
   const fileName = projectDetails.projectName 
     ? `${projectDetails.projectName.replace(/[^a-zA-Z0-9]/g, '_')}_Wall_Area_Report.pdf`
     : `Wall_Area_Calculation_${new Date().toISOString().split('T')[0]}.pdf`;
