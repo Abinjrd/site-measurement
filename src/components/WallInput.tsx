@@ -5,7 +5,7 @@ import { Wall } from '../types';
 
 interface WallInputProps {
   walls: Wall[];
-  defaultHeight: number;
+  defaultHeight: number | null;
   onAddWall: (wall: Omit<Wall, 'id'>) => void;
   onRemoveWall: (id: string) => void;
   onUpdateWall: (id: string, updates: Partial<Wall>) => void;
@@ -18,7 +18,7 @@ export const WallInput: React.FC<WallInputProps> = ({
   onRemoveWall,
   onUpdateWall
 }) => {
-  const [height, setHeight] = useState(defaultHeight.toString());
+  const [height, setHeight] = useState(defaultHeight?.toString() || '');
   const [width, setWidth] = useState('');
   const [quantity, setQuantity] = useState('1');
 
@@ -29,7 +29,7 @@ export const WallInput: React.FC<WallInputProps> = ({
     
     if (h > 0 && w > 0 && q > 0) {
       onAddWall({ height: h, width: w, quantity: q });
-      setHeight(defaultHeight.toString());
+      setHeight(defaultHeight?.toString() || '');
       setWidth('');
       setQuantity('1');
     }
@@ -59,7 +59,7 @@ export const WallInput: React.FC<WallInputProps> = ({
             onChange={(e) => setHeight(e.target.value)}
             onKeyPress={handleKeyPress}
             className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder={defaultHeight.toString()}
+            placeholder={defaultHeight?.toString() || "8"}
             step="0.1"
             min="0"
           />

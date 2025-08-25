@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface RoomCardProps {
   room: Room;
-  defaultWallHeight: number;
+  defaultWallHeight: number | null;
   onUpdateRoom: (id: string, updates: Partial<Room>) => void;
   onRemoveRoom: (id: string) => void;
 }
