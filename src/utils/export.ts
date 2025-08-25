@@ -5,133 +5,249 @@ import { calculateRoomArea, calculateProjectTotal, formatArea } from './calculat
 export const exportToPDF = (rooms: Room[], projectDetails: ProjectDetails) => {
   const pdf = new jsPDF();
   const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
   
-  // Header
-  pdf.setFontSize(20);
+  // Colors
+  const primaryColor = [59, 130, 246]; // Blue
+  const secondaryColor = [107, 114, 128]; // Gray
+  const accentColor = [16, 185, 129]; // Green
+  const lightGray = [249, 250, 251];
+  
+  // Header with background
+  pdf.setFillColor(...primaryColor);
+  pdf.rect(0, 0, pageWidth, 35, 'F');
+  
+  // Company logo placeholder (using text)
+  pdf.setFontSize(24);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('"Wall Surface Area Calculation Report"', pageWidth / 2, 20, { align: 'center' });
+  pdf.setTextColor(255, 255, 255);
+  pdf.text('📐', 15, 22);
   
-  let yPosition = 35;
+  // Main title
+  pdf.setFontSize(18);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('WALL SURFACE AREA CALCULATION REPORT', 35, 22);
   
-  // Project Details
+  let yPosition = 50;
+  
+  // Project Details Section
   if (projectDetails.projectName || projectDetails.clientName) {
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    if (projectDetails.projectName) {
-      pdf.text(`"Project: ${projectDetails.projectName}"`, 20, yPosition);
-      yPosition += 8;
-    }
+    // Section header
+    pdf.setFillColor(...lightGray);
+    pdf.rect(15, yPosition - 5, pageWidth - 30, 8, 'F');
     
     pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(...secondaryColor);
+    pdf.text('PROJECT INFORMATION', 20, yPosition);
+    yPosition += 15;
+    
+    pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(0, 0, 0);
+    
+    if (projectDetails.projectName) {
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Project:', 20, yPosition);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(projectDetails.projectName, 50, yPosition);
+      yPosition += 6;
+    }
+    
     if (projectDetails.clientName) {
-      pdf.text(`"Client: ${projectDetails.clientName}"`, 20, yPosition);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Client:', 20, yPosition);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(projectDetails.clientName, 50, yPosition);
       yPosition += 6;
     }
+    
     if (projectDetails.clientAddress) {
-      pdf.text(`"Address: ${projectDetails.clientAddress}"`, 20, yPosition);
-      yPosition += 6;
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Address:', 20, yPosition);
+      pdf.setFont('helvetica', 'normal');
+      const addressLines = pdf.splitTextToSize(projectDetails.clientAddress, 120);
+      pdf.text(addressLines, 50, yPosition);
+      yPosition += addressLines.length * 6;
     }
+    
     if (projectDetails.contractorName) {
-      pdf.text(`"Contractor: ${projectDetails.contractorName}"`, 20, yPosition);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Contractor:', 20, yPosition);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(projectDetails.contractorName, 50, yPosition);
       yPosition += 6;
     }
+    
     if (projectDetails.contractorPhone) {
-      pdf.text(`"Phone: ${projectDetails.contractorPhone}"`, 20, yPosition);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Phone:', 20, yPosition);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(projectDetails.contractorPhone, 50, yPosition);
       yPosition += 6;
     }
+    
     yPosition += 5;
   }
   
-  pdf.setFontSize(12);
+  // Date and report info
+  pdf.setFillColor(...lightGray);
+  pdf.rect(15, yPosition - 5, pageWidth - 30, 8, 'F');
+  
+  pdf.setFontSize(10);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setTextColor(...secondaryColor);
+  pdf.text('REPORT DETAILS', 20, yPosition);
+  
   pdf.setFont('helvetica', 'normal');
-  pdf.text(`"Generated on: ${new Date().toLocaleDateString()}"`, 20, yPosition);
-  yPosition += 15;
+  pdf.setTextColor(0, 0, 0);
+  pdf.text(`Generated: ${new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  })}`, 20, yPosition + 8);
+  pdf.text(`Total Rooms: ${rooms.length}`, 20, yPosition + 14);
+  
+  yPosition += 25;
 
   // Room details
   rooms.forEach((room, roomIndex) => {
     const summary = calculateRoomArea(room);
     
-    // Room header
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`"Room ${roomIndex + 1}: ${room.name}"`, 20, yPosition);
-    yPosition += 10;
-    
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'normal');
-    
-    // Ceilings
-    if (room.ceilings.length > 0) {
-      pdf.text('"Ceilings:"', 25, yPosition);
-      yPosition += 6;
-      room.ceilings.forEach((ceiling, index) => {
-        const area = ceiling.height * ceiling.width * ceiling.quantity;
-        pdf.text(`"  Ceiling ${index + 1}: ${ceiling.height}' × ${ceiling.width}' × ${ceiling.quantity} = ${formatArea(area)} sq ft"`, 30, yPosition);
-        yPosition += 5;
-      });
-      yPosition += 3;
-    }
-    
-    // Walls
-    if (room.walls.length > 0) {
-      pdf.text('"Walls:"', 25, yPosition);
-      yPosition += 6;
-      room.walls.forEach((wall, index) => {
-        const area = wall.height * wall.width * wall.quantity;
-        pdf.text(`"  Wall ${index + 1}: ${wall.height}' × ${wall.width}' × ${wall.quantity} = ${formatArea(area)} sq ft"`, 30, yPosition);
-        yPosition += 5;
-      });
-      yPosition += 3;
-    }
-    
-    // Openings
-    if (room.openings.length > 0) {
-      pdf.text('"Openings (Deducted):"', 25, yPosition);
-      yPosition += 6;
-      room.openings.forEach((opening, index) => {
-        const area = opening.height * opening.width * opening.quantity;
-        pdf.text(`"  ${opening.type.charAt(0).toUpperCase() + opening.type.slice(1)} ${index + 1}: ${opening.height}' × ${opening.width}' × ${opening.quantity} = ${formatArea(area)} sq ft"`, 30, yPosition);
-        yPosition += 5;
-      });
-      yPosition += 3;
-    }
-    
-    // Running feet
-    if (room.runningFeet.length > 0) {
-      pdf.text('"Running Feet:"', 25, yPosition);
-      yPosition += 6;
-      room.runningFeet.forEach((rf, index) => {
-        const area = rf.length * rf.quantity;
-        pdf.text(`"  Running Feet ${index + 1}: ${rf.length}' × ${rf.quantity} = ${formatArea(area)} sq ft"`, 30, yPosition);
-        yPosition += 5;
-      });
-      yPosition += 3;
-    }
-    
-    // Room summary
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`"Room Total: ${formatArea(summary.netArea)} sq ft"`, 25, yPosition);
-    yPosition += 10;
-    
-    pdf.setFont('helvetica', 'normal');
-    
     // Check if we need a new page
-    if (yPosition > 250) {
+    if (yPosition > pageHeight - 80) {
       pdf.addPage();
       yPosition = 20;
     }
+    
+    // Room header with background
+    pdf.setFillColor(...primaryColor);
+    pdf.rect(15, yPosition - 5, pageWidth - 30, 12, 'F');
+    
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text(`🏠 ROOM ${roomIndex + 1}: ${room.name.toUpperCase()}`, 20, yPosition + 3);
+    yPosition += 18;
+    
+    pdf.setTextColor(0, 0, 0);
+    
+    // Measurements sections
+    const sections = [
+      { title: 'CEILINGS', items: room.ceilings, icon: '⬜', color: [147, 51, 234] },
+      { title: 'WALLS', items: room.walls, icon: '🧱', color: [59, 130, 246] },
+      { title: 'OPENINGS (DEDUCTED)', items: room.openings, icon: '🚪', color: [245, 158, 11] },
+      { title: 'RUNNING FEET', items: room.runningFeet, icon: '📏', color: [16, 185, 129] }
+    ];
+    
+    sections.forEach(section => {
+      if (section.items.length > 0) {
+        // Section header
+        pdf.setFillColor(...section.color);
+        pdf.rect(20, yPosition - 3, pageWidth - 40, 8, 'F');
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(`${section.icon} ${section.title}`, 25, yPosition + 2);
+        yPosition += 12;
+        
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9);
+        
+        section.items.forEach((item, index) => {
+          let area, description;
+          
+          if (section.title === 'RUNNING FEET') {
+            area = item.length * item.quantity;
+            description = `${item.length}' × ${item.quantity} qty`;
+          } else if (section.title === 'OPENINGS (DEDUCTED)') {
+            area = item.height * item.width * item.quantity;
+            description = `${item.type.charAt(0).toUpperCase() + item.type.slice(1)} - ${item.height}' × ${item.width}' × ${item.quantity} qty`;
+          } else {
+            area = item.height * item.width * item.quantity;
+            description = `${item.height}' × ${item.width}' × ${item.quantity} qty`;
+          }
+          
+          // Item row with alternating background
+          if (index % 2 === 0) {
+            pdf.setFillColor(248, 250, 252);
+            pdf.rect(25, yPosition - 3, pageWidth - 50, 6, 'F');
+          }
+          
+          pdf.text(`• ${description}`, 30, yPosition);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(`${formatArea(area)} sq ft`, pageWidth - 50, yPosition);
+          pdf.setFont('helvetica', 'normal');
+          yPosition += 6;
+        });
+        
+        yPosition += 3;
+      }
+    });
+    
+    // Room summary box
+    pdf.setFillColor(...accentColor);
+    pdf.rect(20, yPosition - 3, pageWidth - 40, 15, 'F');
+    
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('ROOM TOTAL:', 25, yPosition + 5);
+    pdf.setFontSize(14);
+    pdf.text(`${formatArea(summary.netArea)} SQ FT`, pageWidth - 70, yPosition + 5);
+    
+    // Calculation breakdown
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Walls: ${formatArea(summary.totalWallArea)} - Openings: ${formatArea(summary.totalOpeningsArea)} + Ceiling: ${formatArea(summary.ceilingArea)} + Running Feet: ${formatArea(summary.runningFeetArea)}`, 25, yPosition + 10);
+    
+    yPosition += 25;
   });
   
-  // Project total
+  // Project total section
   const projectTotal = calculateProjectTotal(rooms);
-  pdf.setFontSize(16);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text(`"PROJECT TOTAL: ${formatArea(projectTotal)} sq ft"`, 20, yPosition + 10);
   
+  // Check if we need space for final total
+  if (yPosition > pageHeight - 40) {
+    pdf.addPage();
+    yPosition = 20;
+  }
+  
+  // Final total with gradient effect (simulated with multiple rectangles)
+  const gradientColors = [
+    [59, 130, 246],
+    [37, 99, 235],
+    [29, 78, 216]
+  ];
+  
+  gradientColors.forEach((color, index) => {
+    pdf.setFillColor(...color);
+    pdf.rect(15, yPosition + index * 2, pageWidth - 30, 6, 'F');
+  });
+  
+  pdf.setFontSize(18);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setTextColor(255, 255, 255);
+  pdf.text('🎯 PROJECT TOTAL:', 25, yPosition + 8);
+  pdf.setFontSize(24);
+  pdf.text(`${formatArea(projectTotal)} SQ FT`, pageWidth - 100, yPosition + 8);
+  
+  // Footer
+  yPosition += 25;
+  pdf.setFillColor(243, 244, 246);
+  pdf.rect(0, pageHeight - 20, pageWidth, 20, 'F');
+  
+  pdf.setFontSize(8);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setTextColor(...secondaryColor);
+  pdf.text('Professional Wall Surface Area Calculator - Generated for Construction Professionals', pageWidth / 2, pageHeight - 10, { align: 'center' });
+  
+  // Save with better filename
   const fileName = projectDetails.projectName 
-    ? `${projectDetails.projectName.replace(/[^a-zA-Z0-9]/g, '_')}_calculation.pdf`
-    : 'wall-area-calculation.pdf';
+    ? `${projectDetails.projectName.replace(/[^a-zA-Z0-9]/g, '_')}_Wall_Area_Report.pdf`
+    : `Wall_Area_Calculation_${new Date().toISOString().split('T')[0]}.pdf`;
   pdf.save(fileName);
 };
 
