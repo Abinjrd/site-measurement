@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
 import { Wall } from '../types';
@@ -22,6 +23,13 @@ export const WallInput: React.FC<WallInputProps> = ({
   const [width, setWidth] = useState('');
   const [quantity, setQuantity] = useState('1');
 
+  // Update height when defaultHeight changes
+  React.useEffect(() => {
+    if (defaultHeight !== null) {
+      setHeight(defaultHeight.toString());
+    }
+  }, [defaultHeight]);
+
   const handleAddWall = () => {
     const h = parseFloat(height);
     const w = parseFloat(width);
@@ -29,7 +37,7 @@ export const WallInput: React.FC<WallInputProps> = ({
     
     if (h > 0 && w > 0 && q > 0) {
       onAddWall({ height: h, width: w, quantity: q });
-      setHeight(defaultHeight?.toString() || '');
+      setHeight(defaultHeight?.toString() || h.toString());
       setWidth('');
       setQuantity('1');
     }
