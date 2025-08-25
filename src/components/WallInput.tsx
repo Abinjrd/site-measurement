@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
 import { Wall } from '../types';
