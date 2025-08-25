@@ -112,9 +112,9 @@ export const RoomCard: React.FC<RoomCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300"
+      className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300"
     >
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div className="flex items-center gap-3">
           {isEditingName ? (
             <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
                 value={editedName}
                 onChange={(e) => setEditedName(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="text-xl font-bold text-gray-800 border-b-2 border-blue-500 bg-transparent focus:outline-none"
+                className="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-blue-500 bg-transparent focus:outline-none min-w-0 flex-1"
                 autoFocus
               />
               <motion.button
@@ -148,7 +148,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <h3 className="text-xl font-bold text-gray-800">{room.name}</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">{room.name}</h3>
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -171,7 +171,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
       </div>
 
       {/* All measurements with equal importance */}
-      <div className="space-y-6 mb-6">
+      <div className="space-y-4 sm:space-y-6 mb-4 sm:mb-6">
         <CeilingInput
           ceilings={room.ceilings}
           onAddCeiling={handleAddCeiling}
@@ -203,29 +203,29 @@ export const RoomCard: React.FC<RoomCardProps> = ({
       </div>
 
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg">
-        <h5 className="font-semibold text-gray-700 mb-3">Room Summary</h5>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-sm">
+        <h5 className="font-semibold text-gray-700 mb-3 text-sm sm:text-base">Room Summary</h5>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm">
           <div>
             <span className="text-gray-600">Total Wall Area:</span>
-            <div className="font-bold text-blue-600">{formatArea(summary.totalWallArea)} sq ft</div>
+            <div className="font-bold text-blue-600 text-sm sm:text-base">{formatArea(summary.totalWallArea)} sq ft</div>
           </div>
           <div>
             <span className="text-gray-600">Openings Area:</span>
-            <div className="font-bold text-amber-600">{formatArea(summary.totalOpeningsArea)} sq ft</div>
+            <div className="font-bold text-amber-600 text-sm sm:text-base">{formatArea(summary.totalOpeningsArea)} sq ft</div>
           </div>
           <div>
             <span className="text-gray-600">Ceiling Area:</span>
-            <div className="font-bold text-purple-600">{formatArea(summary.ceilingArea)} sq ft</div>
+            <div className="font-bold text-purple-600 text-sm sm:text-base">{formatArea(summary.ceilingArea)} sq ft</div>
           </div>
           <div>
             <span className="text-gray-600">Running Feet:</span>
-            <div className="font-bold text-green-600">{formatArea(summary.runningFeetArea)} sq ft</div>
+            <div className="font-bold text-green-600 text-sm sm:text-base">{formatArea(summary.runningFeetArea)} sq ft</div>
           </div>
         </div>
-        <div className="mt-3 pt-3 border-t border-gray-200">
+        <div className="mt-3 pt-3 border-t border-gray-200 col-span-2 sm:col-span-4">
           <div>
-            <span className="text-gray-600">Net Total Area:</span>
-            <div className="font-bold text-gray-800 text-lg">{formatArea(summary.netArea)} sq ft</div>
+            <span className="text-gray-600 text-xs sm:text-sm">Net Total Area:</span>
+            <div className="font-bold text-gray-800 text-base sm:text-lg">{formatArea(summary.netArea)} sq ft</div>
           </div>
         </div>
       </div>

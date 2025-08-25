@@ -46,9 +46,9 @@ export const CeilingInput: React.FC<CeilingInputProps> = ({
         Ceilings
       </h4>
       
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs sm:text-sm font-medium text-gray-600 mb-1">
             Length (ft)
           </label>
           <input
@@ -56,14 +56,14 @@ export const CeilingInput: React.FC<CeilingInputProps> = ({
             value={height}
             onChange={(e) => setHeight(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            className="w-full px-3 py-2 sm:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm sm:text-base"
             placeholder="12"
             step="0.1"
             min="0"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs sm:text-sm font-medium text-gray-600 mb-1">
             Width (ft)
           </label>
           <input
@@ -71,14 +71,14 @@ export const CeilingInput: React.FC<CeilingInputProps> = ({
             value={width}
             onChange={(e) => setWidth(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            className="w-full px-3 py-2 sm:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm sm:text-base"
             placeholder="10"
             step="0.1"
             min="0"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs sm:text-sm font-medium text-gray-600 mb-1">
             Quantity
           </label>
           <input
@@ -86,7 +86,7 @@ export const CeilingInput: React.FC<CeilingInputProps> = ({
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            className="w-full px-3 py-2 sm:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm sm:text-base"
             placeholder="1"
             min="1"
           />
@@ -96,10 +96,11 @@ export const CeilingInput: React.FC<CeilingInputProps> = ({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleAddCeiling}
-            className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-purple-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base font-medium"
           >
             <Plus className="w-4 h-4" />
-            Add Ceiling
+            <span className="hidden sm:inline">Add Ceiling</span>
+            <span className="sm:hidden">Add</span>
           </motion.button>
         </div>
       </div>
@@ -112,41 +113,41 @@ export const CeilingInput: React.FC<CeilingInputProps> = ({
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 p-3 rounded-lg gap-2 sm:gap-0"
             >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-600">
+              <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                <span className="text-xs sm:text-sm font-medium text-gray-600 whitespace-nowrap">
                   Ceiling {index + 1}:
                 </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-wrap">
                   <input
                     type="number"
                     value={ceiling.height}
                     onChange={(e) => onUpdateCeiling(ceiling.id, { height: parseFloat(e.target.value) || 0 })}
-                    className="w-14 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
+                    className="w-12 sm:w-14 px-1 sm:px-2 py-1 text-xs sm:text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
                     step="0.1"
                     min="0"
                   />
-                  <span className="text-xs text-gray-500">×</span>
+                  <span className="text-xs text-gray-500 hidden sm:inline">×</span>
                   <input
                     type="number"
                     value={ceiling.width}
                     onChange={(e) => onUpdateCeiling(ceiling.id, { width: parseFloat(e.target.value) || 0 })}
-                    className="w-14 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
+                    className="w-12 sm:w-14 px-1 sm:px-2 py-1 text-xs sm:text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
                     step="0.1"
                     min="0"
                   />
-                  <span className="text-xs text-gray-500">×</span>
+                  <span className="text-xs text-gray-500 hidden sm:inline">×</span>
                   <input
                     type="number"
                     value={ceiling.quantity}
                     onChange={(e) => onUpdateCeiling(ceiling.id, { quantity: parseInt(e.target.value) || 1 })}
-                    className="w-12 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
+                    className="w-10 sm:w-12 px-1 sm:px-2 py-1 text-xs sm:text-sm border border-gray-200 rounded focus:ring-1 focus:ring-purple-500"
                     min="1"
                   />
-                  <span className="text-xs text-gray-500">qty</span>
+                  <span className="text-xs text-gray-500 hidden sm:inline">qty</span>
                 </div>
-                <span className="text-sm text-gray-800 font-medium">
+                <span className="text-xs sm:text-sm text-gray-800 font-medium whitespace-nowrap">
                   = {(ceiling.height * ceiling.width * ceiling.quantity).toFixed(2)} sq ft
                 </span>
               </div>
@@ -154,7 +155,7 @@ export const CeilingInput: React.FC<CeilingInputProps> = ({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => onRemoveCeiling(ceiling.id)}
-                className="text-red-500 hover:text-red-700 transition-colors"
+                className="text-red-500 hover:text-red-700 transition-colors p-1 sm:p-0 self-end sm:self-center"
               >
                 <X className="w-4 h-4" />
               </motion.button>
