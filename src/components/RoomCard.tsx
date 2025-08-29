@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trash2, Edit3, Check, X } from 'lucide-react';
+import { Trash2, Edit3, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Room, Wall, Opening } from '../types';
 import { RunningFeet } from '../types';
 import { WallInput } from './WallInput';
@@ -25,6 +25,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
 }) => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState(room.name);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const summary = calculateRoomArea(room);
 
@@ -112,123 +113,169 @@ export const RoomCard: React.FC<RoomCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300"
+      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
     >
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <div className="flex items-center gap-3">
-          {isEditingName ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="text-lg sm:text-xl font-bold text-gray-800 border-b-2 border-blue-500 bg-transparent focus:outline-none min-w-0 flex-1"
-                autoFocus
+      {/* Room Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {isEditingName ? (
+              <div className="flex items-center gap-2 flex-1">
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="text-lg font-bold text-gray-800 border-b-2 border-blue-500 bg-transparent focus:outline-none flex-1 min-w-0"
+                  autoFocus
+                />
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleSaveName}
+                  className="p-2 text-green-600 hover:text-green-700"
+                >
+                  <Check className="w-5 h-5" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => {
+                    setEditedName(room.name);
+                    setIsEditingName(false);
+                  }}
+                  className="p-2 text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-5 h-5" />
+                </motion.button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-gray-800 truncate">{room.name}</h3>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsEditingName(true)}
+                  className="p-1 text-gray-400 hover:text-gray-600"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </motion.button>
+              </div>
+            )}
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onRemoveRoom(room.id)}
+            className="p-2 text-red-500 hover:text-red-700 transition-colors"
+          >
+            <Trash2 className="w-5 h-5" />
+          </motion.button>
+        </div>
+
+        {/* Room Summary */}
+        <div className="bg-white rounded-xl p-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Net Area
+            </div>
+            <div className="text-xl font-bold text-blue-600">
+              {formatArea(summary.netArea)} sq ft
+            </div>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-full mt-2 flex items-center justify-center gap-2 text-sm text-gray-500 py-1"
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="w-4 h-4" />
+                Hide Details
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4" />
+                Show Details
+              </>
+            )}
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Expandable Content */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 space-y-6">
+              <CeilingInput
+                ceilings={room.ceilings}
+                onAddCeiling={handleAddCeiling}
+                onRemoveCeiling={handleRemoveCeiling}
+                onUpdateCeiling={handleUpdateCeiling}
               />
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={handleSaveName}
-                className="text-green-600 hover:text-green-700"
-              >
-                <Check className="w-4 h-4" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => {
-                  setEditedName(room.name);
-                  setIsEditingName(false);
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-4 h-4" />
-              </motion.button>
+
+              <WallInput
+                walls={room.walls}
+                defaultHeight={defaultWallHeight}
+                onAddWall={handleAddWall}
+                onRemoveWall={handleRemoveWall}
+                onUpdateWall={handleUpdateWall}
+              />
+              
+              <OpeningInput
+                openings={room.openings}
+                onAddOpening={handleAddOpening}
+                onRemoveOpening={handleRemoveOpening}
+                onUpdateOpening={handleUpdateOpening}
+              />
+              
+              <RunningFeetInput
+                runningFeet={room.runningFeet}
+                onAddRunningFeet={handleAddRunningFeet}
+                onRemoveRunningFeet={handleRemoveRunningFeet}
+                onUpdateRunningFeet={handleUpdateRunningFeet}
+              />
+
+              {/* Detailed Breakdown */}
+              <div className="bg-gray-50 p-4 rounded-xl">
+                <h5 className="font-semibold text-gray-700 mb-3">Calculation Breakdown</h5>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Wall Area:</span>
+                    <span className="font-medium text-blue-600">{formatArea(summary.totalWallArea)} sq ft</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Openings (subtract):</span>
+                    <span className="font-medium text-red-600">-{formatArea(summary.totalOpeningsArea)} sq ft</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Ceiling Area:</span>
+                    <span className="font-medium text-purple-600">{formatArea(summary.ceilingArea)} sq ft</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Running Feet:</span>
+                    <span className="font-medium text-green-600">{formatArea(summary.runningFeetArea)} sq ft</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-2 mt-2">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-gray-800">Net Total:</span>
+                      <span className="font-bold text-lg text-blue-600">{formatArea(summary.netArea)} sq ft</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">{room.name}</h3>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsEditingName(true)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <Edit3 className="w-4 h-4" />
-              </motion.button>
-            </div>
-          )}
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => onRemoveRoom(room.id)}
-          className="text-red-500 hover:text-red-700 transition-colors"
-        >
-          <Trash2 className="w-5 h-5" />
-        </motion.button>
-      </div>
-
-      {/* All measurements with equal importance */}
-      <div className="space-y-4 sm:space-y-6 mb-4 sm:mb-6">
-        <CeilingInput
-          ceilings={room.ceilings}
-          onAddCeiling={handleAddCeiling}
-          onRemoveCeiling={handleRemoveCeiling}
-          onUpdateCeiling={handleUpdateCeiling}
-        />
-
-        <WallInput
-          walls={room.walls}
-          defaultHeight={defaultWallHeight}
-          onAddWall={handleAddWall}
-          onRemoveWall={handleRemoveWall}
-          onUpdateWall={handleUpdateWall}
-        />
-        
-        <OpeningInput
-          openings={room.openings}
-          onAddOpening={handleAddOpening}
-          onRemoveOpening={handleRemoveOpening}
-          onUpdateOpening={handleUpdateOpening}
-        />
-        
-        <RunningFeetInput
-          runningFeet={room.runningFeet}
-          onAddRunningFeet={handleAddRunningFeet}
-          onRemoveRunningFeet={handleRemoveRunningFeet}
-          onUpdateRunningFeet={handleUpdateRunningFeet}
-        />
-      </div>
-
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg">
-        <h5 className="font-semibold text-gray-700 mb-3 text-sm sm:text-base">Room Summary</h5>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm">
-          <div>
-            <span className="text-gray-600">Total Wall Area:</span>
-            <div className="font-bold text-blue-600 text-sm sm:text-base">{formatArea(summary.totalWallArea)} sq ft</div>
-          </div>
-          <div>
-            <span className="text-gray-600">Openings Area:</span>
-            <div className="font-bold text-amber-600 text-sm sm:text-base">{formatArea(summary.totalOpeningsArea)} sq ft</div>
-          </div>
-          <div>
-            <span className="text-gray-600">Ceiling Area:</span>
-            <div className="font-bold text-purple-600 text-sm sm:text-base">{formatArea(summary.ceilingArea)} sq ft</div>
-          </div>
-          <div>
-            <span className="text-gray-600">Running Feet:</span>
-            <div className="font-bold text-green-600 text-sm sm:text-base">{formatArea(summary.runningFeetArea)} sq ft</div>
-          </div>
-        </div>
-        <div className="mt-3 pt-3 border-t border-gray-200 col-span-2 sm:col-span-4">
-          <div>
-            <span className="text-gray-600 text-xs sm:text-sm">Net Total Area:</span>
-            <div className="font-bold text-gray-800 text-base sm:text-lg">{formatArea(summary.netArea)} sq ft</div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
