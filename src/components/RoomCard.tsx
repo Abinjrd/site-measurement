@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit3, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Room, Wall, Opening } from '../types';
 import { RunningFeet } from '../types';
